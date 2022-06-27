@@ -28,6 +28,7 @@ chosen_3_5_2_6 = ['A0EL75','A1EGT8','A3RIY0', 'A5LH21', 'A8RR46', 'B2BSN6', 'B3F
  'Q708V4','Q76DI4','Q7AYX1','Q7BEB3','Q7BHJ5','Q7WZ37','Q8GD10','Q8KQ59','Q8KSA6','Q8RLA6',
  'Q8RNV0','Q93F76','Q9AL74', 'Q9RBQ1']
 
+
 chosen_3_2_1_14 = ['Q06AK1','A0A286JZ72','Q54276','Q2V6H4','H9CWQ0','K7ZLW6','F8WSQ2','F8WSQ1',
  'F8WSQ0','E5FGC5','Q8U1H4','P29030', 'D3YGV3','Q43576','A9LI60','B5L0W0','Q8ITU3','Q4W6L6','D3GG13',
  'B3GGC7','A6YJX1','Q9CE95','B1VBB0','Q93LF1','Q06HA3','P48827','A0MWE1','A0MWE0','P11797','P07254',
@@ -62,6 +63,21 @@ chosen_1_15_1_1 = ['A6MHS2', 'Q9Y8H8', 'E9LK91', 'P22302', 'Q7X4G4', 'Q9RUV2', '
 'P09223', 'O30970', 'P61502', 'Q6QGY4', 'A0A088MM36', 'E9RHW0', 'C3W7V0', 'C3W7U9', 'I3VPK0',
 'H8YHP4', 'B6ENP9', 'A3RLW7', 'C7DRQ4', 'D3IU19', 'Q71S33', 'Q6QHT3', 'Q2KN30', 'P11796', 'Q381J5']
 
+
+cu_1_15_1_1 = ['C8XTB0', 'M9NZV8', 'P27082', 'A5HIG4', 'E6Y8N8', 'P08294', 'A0A1L9VGR0', 'Q6IYF2',
+'D2DSG2', 'F6JRN6', 'I3VPJ9', 'Q83AQ8', 'A0A0U1X631', 'O78310', 'P11964', 'P24704', 'P07632',
+'A4ISC5', 'I6TCY8', 'J7H7U2', 'D2K8K6', 'G9D323', 'G9D319', 'G9D322', 'G9D320', 'A4ZYP8', 'G0WP59',
+'H8YHP3', 'P41975', 'P00442', 'Q71S31', 'Q1HEQ0', 'Q6B7T0', 'P00441', 'C7EXL1', 'D0UXW7', 'C5H405',
+'B0B552', 'A7BI63', 'B6QEB3', 'Q52JH6', 'Q1HDV5', 'Q6TKF7', 'Q8J0N2', 'Q33DP1', 'Q8MUI5', 'Q5JCT2', 'Q9Y8D9']
+
+f10_3_2_1_8 = ['A5IL00', 'A0A286LNP2', 'O68541', 'E4Q2A4', 'P23360', 'A0A088BC14', 'A0A0F6MV31', 'Q8CJQ1',
+'E2FJN9', 'A0A0S2I9J6', 'B2BZ80', 'I6Z9A7', 'I7A603', 'B5M201', 'A0A0U5B5Z4', 'A0A0F7MYK0', 'A0A0F7MX47',
+'M4QNR9', 'F7YXD6', 'C3VEV9', 'I6M1A2', 'T2HRP0', 'A0A067XRW0', 'A0A075EEX4', 'B6VF01', 'E3WF08', 'F2VRY7',
+'E1APH5', 'Q5ZNB1', 'D3VWB5', 'C6ZHB0', 'D0QF43', 'Q17TM8', 'C6FX34', 'D8L2Y2', 'B8XY24', 'O32374', 'A7TVD4',
+'B1A3N2', 'B1B533', 'P51584', 'Q9X584', 'Q7Z1V6', 'C3RYK8', 'Q94G06', 'Q9AM28', 'Q01176', 'O59938', 'Q00177', 
+'Q9P8J1', 'Q59675', 'P26514', 'Q7SI98', 'Q60037', 'P96988', 'Q8NJ73', 'Q8GTJ2']
+
+
 def create_filtered_ec(ec_num: str, filtered_entries: list):
 
     original_fa = readFastaFile(f"/home/seb-porras/expat_bench/workflows/{ec_num}/files/{ec_num}.fasta")
@@ -71,18 +87,7 @@ def create_filtered_ec(ec_num: str, filtered_entries: list):
     writeFastaFile(f"/home/seb-porras/expat_bench/workflows/{ec_num}/files/{ec_num}_filt.fasta", filtered)
 
 
-
-# create_filtered_ec('4_1_1_39', chosen_4_1_1_39)
-
-# create_filtered_ec('3_5_2_6', chosen_3_5_2_6)
-
-#create_filtered_ec('3_2_1_14', chosen_3_2_1_14)
-
-#create_filtered_ec('2_7_11_22', chosen_2_7_11_22)
-
-#create_filtered_ec('3_6_5_2', chosen_3_6_5_2)
-
-create_filtered_ec('1_15_1_1', chosen_1_15_1_1)
+create_filtered_ec('3_5_2_6', chosen_3_5_2_6)
 
 
 

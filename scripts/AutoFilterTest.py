@@ -1,41 +1,20 @@
 import pandas as pd
-import os
-import matplotlib.pyplot as plt
-from matplotlib import cm
-import sys
 from collections import defaultdict
-from collections import Counter
-from collections import OrderedDict
 import numpy as np
 from sequence import * 
 
 
-def display_col_tags(ec_num:str, col_name: str):
-    df = pd.read_csv(f"/home/seb-porras/expat_bench/workflows/{ec_num}/csv/{ec_num}_uniprot.csv")
+def display_col_tags(col_name: str):
+
+    df = pd.read_csv(snakemake.input.csv)
 
     counts = df[col_name].dropna().unique()
     
     return counts 
 
     
-def filtered_annots(ec_num:str, filtered_entries: list, enzyme_prop: str):
-
-    for key in filtered_entries.keys():
-      
-        df = pd.read_csv(f"/home/seb-porras/expat_bench/workflows/{ec_num}/csv/{ec_num}_uniprot.csv")
-    
-        df = df.loc[df['Entry'].isin(filtered_entries.get(key))]
-
-        num_rows = df.shape[0]
-
-        if enzyme_prop in df.columns:
-                annot_count = df[enzyme_prop].dropna().shape[0]
-                percent_annot = round((annot_count/num_rows) * 100, 2)
-                print(f"{ec_num}: {enzyme_prop}: {percent_annot}% of entries annotated in {key}")
-
-
 #enter ec num and threshold to define a cutoff for similarity when grouping tags 
-def remove_outliers(ec_num: str, data_col:str, entry_limit = 0):
+def remove_outliers(data_col:str, entry_limit = 0):
     """
     Reads in all seqs from an ec_group, 
     
@@ -50,7 +29,7 @@ def remove_outliers(ec_num: str, data_col:str, entry_limit = 0):
 
     enzyme_cols = ['Entry', data_col]
 
-    df = pd.read_csv(f"/home/seb-porras/expat_bench/workflows/{ec_num}/csv/{ec_num}_uniprot.csv")
+    df = pd.read_csv(snakemake.input.csv)
 
     #will count each appearance of particular interpro class 
     counters = defaultdict(int)
@@ -72,7 +51,7 @@ def remove_outliers(ec_num: str, data_col:str, entry_limit = 0):
     return filtered_interpro 
     
     
-def grab_seqs_jaccard(ec_num: str, similar_groups: list, col_name: str, index: int):
+def grab_seqs_jaccard(similar_groups: list, col_name: str, index: int):
     
     """
     Grabs all sequences that have been put together in a group
@@ -83,7 +62,7 @@ def grab_seqs_jaccard(ec_num: str, similar_groups: list, col_name: str, index: i
     that have tags in that group 
     """
     
-    df = pd.read_csv(f"/home/seb-porras/expat_bench/workflows/{ec_num}/csv/{ec_num}_uniprot.csv")
+    df = pd.read_csv(snakemake.input.csv)
     
     df = df.loc[df[col_name].isin(similar_groups[index])]
 
@@ -93,11 +72,9 @@ def grab_seqs_jaccard(ec_num: str, similar_groups: list, col_name: str, index: i
 
     return df
 
-
+def grab_seqs(data_col:str, pfam_tag: str):
     
-def grab_seqs(ec_num: str, data_col:str, pfam_tag: str):
-    
-    df = pd.read_csv(f"/home/seb-porras/expat_bench/workflows/{ec_num}/csv/{ec_num}_uniprot.csv")
+    df = pd.read_csv(snakemake.input.csv)
     
     df = df.loc[df[data_col] == pfam_tag]
 
@@ -120,11 +97,11 @@ def compare_overlap(group_1, group_2):
     return percent_overalp
 
 
-def calc_jaccard_matrix_auto(ec_num: str, threshold: float, filtered_counts, data_col):
+def calc_jaccard_matrix_auto(threshold: float, filtered_counts, data_col):
   
     enzyme_cols = ['Entry', data_col]
 
-    df = pd.read_csv(f"/home/seb-porras/expat_bench/workflows/{ec_num}/csv/{ec_num}_uniprot.csv")
+    df = pd.read_csv(snakemake.input.csv)
 
     #will count each appearance of particular interpro class 
     counters = defaultdict(int)
@@ -152,10 +129,6 @@ def calc_jaccard_matrix_auto(ec_num: str, threshold: float, filtered_counts, dat
             #updates matrix 
             distmat[i, j] = distmat[j, i] = similarity 
     
-    #record how many sequences have each type of IP tag, use for axis ticks 
-    interpro_tag_counts = [str(value) + ' - '  \
-                           + str(key)for key, value in filtered_counts.items()]
-    
     #IP names stored here so that loop below can reference name with matrix indices 
     interpro_names = [key for key in filtered_counts.keys()]
     
@@ -182,49 +155,19 @@ def calc_jaccard_matrix_auto(ec_num: str, threshold: float, filtered_counts, dat
         
     return similar_groups
 
-def display_single_families(ec_num: str, gene_tag:str, data_col: str):
-    """
-    data col (str): particular filtering group Gene3D, SMART etc
-    """
-    
-    df = pd.read_csv(f"/home/seb-porras/expat_bench/workflows/{ec_num}/csv/{ec_num}_uniprot.csv")
+def create_filtered_ec(filtered_entries: list):
 
-    enzyme_cols = ['Entry', 'Protein_families', data_col]
-    
-    #will count each appearance of particular family  
-    counters = defaultdict(int)
-
-    df = df[enzyme_cols]
-    
-    #filters data frame to only include entries with tags matching the HOGENOM tag 
-    filtered_df = df.loc[(df[data_col] == gene_tag)]
-  
-    #record appearances of each family #draft
-    
-    family_counts = filtered_df['Protein_families'].value_counts()
-    
-    #place these values in a dict so that it's easier to plot below 
-    for index, value in family_counts.items():
-        counters[index] = value 
-
-    return counters
-
-def create_filtered_ec(ec_num: str, filtered_entries: list):
-
-    original_fa = readFastaFile(f"/home/seb-porras/expat_bench/workflows/{ec_num}/files/{ec_num}.fasta")
+    original_fa = readFastaFile(snakemake.input.fasta)
 
     filtered = [seq for seq in original_fa if seq.name in filtered_entries]
 
-    writeFastaFile(f"/home/seb-porras/expat_bench/workflows/{ec_num}/files/{ec_num}_filt.fasta", filtered)
+    writeFastaFile(snakemake.output.filtered, filtered)
 
-def auto_generate_filtered_entries(ec_num: str, threshold: int, entry_limit = 0):
-    """
-    ec_num (str): string version of enzyme number 
     
+def auto_generate_filtered_entries(threshold: int, entry_limit = 0):
+    """
     threshold (int): Cutoff between 0 and 1 for how similar SMART & InterPro tags must 
     be to each other to be classed as similar
-    
-    enzyme_prop (str): enzyme property that user wants to have annotated, e.g. BRENDA_KM
     
     entry_limit: the minimum number of entries a interpro or SMART tag must have to be included 
     in the Jaccard Similarity matrix. Used to help remove outliers
@@ -233,70 +176,63 @@ def auto_generate_filtered_entries(ec_num: str, threshold: int, entry_limit = 0)
     #will store a list of entries for each type of filtering used 
    
     #same as above except with InterPro 
-    filtered_ip = remove_outliers(ec_num, 'Cross_reference_InterPro', entry_limit)
+    filtered_ip = remove_outliers('Cross_reference_InterPro', entry_limit)
 
-    ip_matrix = calc_jaccard_matrix_auto(ec_num, threshold, filtered_ip, 'Cross_reference_InterPro')  
+    ip_matrix = calc_jaccard_matrix_auto(threshold, filtered_ip, 'Cross_reference_InterPro')  
 
     #list of seqs that will be written to the fasta file 
-    final_seqs = set(grab_seqs_jaccard(ec_num, ip_matrix, 'Cross_reference_InterPro', 0))
+    final_seqs = set(grab_seqs_jaccard(ip_matrix, 'Cross_reference_InterPro', 0))
 
     #Once user is happy with selections, record which entries are included 
-    target_ip = grab_seqs_jaccard(ec_num, ip_matrix, 'Cross_reference_InterPro', 0)
+    target_ip = grab_seqs_jaccard(ip_matrix, 'Cross_reference_InterPro', 0)
     
     #remove groups below the minimum number of entries within the EC group 
-    filtered_smart = remove_outliers(ec_num, 'Cross_reference_SMART', entry_limit)
+    filtered_smart = remove_outliers('Cross_reference_SMART', entry_limit)
 
     #create jaccard matrix from filtered list 
-    smart_matrix = calc_jaccard_matrix_auto(ec_num, threshold, filtered_smart, 'Cross_reference_SMART')
+    smart_matrix = calc_jaccard_matrix_auto(threshold, filtered_smart, 'Cross_reference_SMART')
 
     for i in range(len(smart_matrix)):
        
-        target_smart = grab_seqs_jaccard(ec_num, smart_matrix, 'Cross_reference_SMART', i)
+        target_smart = grab_seqs_jaccard(smart_matrix, 'Cross_reference_SMART', i)
       
-        if compare_overlap(target_ip, target_smart) > 0.5:
+        if compare_overlap(target_ip, target_smart) > 0.8:
             
             final_seqs.update(target_smart)
 
-    tags = display_col_tags(ec_num, 'Cross_reference_Gene3D')
+    tags = display_col_tags('Cross_reference_Gene3D')
 
     for i in tags:
 
-        target_g3d = grab_seqs(ec_num, "Cross_reference_Gene3D", i)
+        target_g3d = grab_seqs("Cross_reference_Gene3D", i)
         print(compare_overlap(target_ip, target_g3d))
 
-        if compare_overlap(target_ip, target_g3d) > 0.5:
+        if compare_overlap(target_ip, target_g3d) > 0.8:
             
             final_seqs.update(target_g3d)
 
-    tags = display_col_tags(ec_num, 'Cross_reference_Pfam')
+    tags = display_col_tags('Cross_reference_Pfam')
 
     for i in tags:
        
-        target_pfam = grab_seqs(ec_num, "Cross_reference_Pfam", i)
+        target_pfam = grab_seqs("Cross_reference_Pfam", i)
 
         print(compare_overlap(target_ip, target_pfam))
         
-        if compare_overlap(target_ip, target_pfam) > 0.5:
+        if compare_overlap(target_ip, target_pfam) > 0.8:
             final_seqs.update(target_pfam)
     
-    tags = display_col_tags(ec_num, 'Cross_reference_OrthoDB')
+    tags = display_col_tags('Cross_reference_OrthoDB')
 
     for i in tags:
 
-        target_ortho = grab_seqs(ec_num, "Cross_reference_OrthoDB", i)
+        target_ortho = grab_seqs("Cross_reference_OrthoDB", i)
     
-        if compare_overlap(target_ip, target_ortho) > 0.5:
+        if compare_overlap(target_ip, target_ortho) > 0.8:
             final_seqs.update(target_ortho)
     
     return list(final_seqs)
 
-if __name__ == "__main__":
-    #print(snakemake.input[0]
-    #test = auto_generate_filtered_entries("3_5_2_6", 0.15, 0)
-    #create_filtered_ec(3_5_2_6, test)
-    test = auto_generate_filtered_entries("3_5_2_6", 0.5, 1)
-    print(test)
-    #create_filtered_ec("3_5_2_6", test)    
-
-
+test = auto_generate_filtered_entries(0.5, 1)
+create_filtered_ec(test)    
 
