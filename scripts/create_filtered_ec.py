@@ -78,6 +78,22 @@ f10_3_2_1_8 = ['A5IL00', 'A0A286LNP2', 'O68541', 'E4Q2A4', 'P23360', 'A0A088BC14
 'Q9P8J1', 'Q59675', 'P26514', 'Q7SI98', 'Q60037', 'P96988', 'Q8NJ73', 'Q8GTJ2']
 
 
+class_b_3_5_2_6 = ['Q9KVZ2','E6Y3G9','A0A024FRL9','S5ZIP8','T2A6Y2',
+ 'M1VE66','J7I0S9','H6WET3','A0A0F6N6D4','H6WZS9','I3VKD5','F2YZ26',
+ 'C7C422','B6EPH0','E9RIT0','P25910','Q8KRJ3','Q9RMI1','Q5U807',
+ 'Q7WYA8','Q970L2','P04190','P52699','B1NLE9','Q6D395','A8R403',
+ 'Q2HY42','O31272','P52700','Q9XAY4','P26918','Q8GCU7','Q7DH52',
+ 'Q53CM3','Q79MP6','Q840P9','Q9F629','Q6JE29','Q8GIW8','Q8G979',
+ 'Q7BJM5','Q53BU0','Q53BU1','Q9K2N0','Q4ZE97']
+
+
+fam_19_3_2_1_14 = ['Q7XAU6', 'Q852P9', 'P29022', 'P24626', 'C0JR29',
+'C1K2M3', 'B3VFX0', 'Q546P8', 'Q8W427', 'Q9FRV1', 'B5L6N2', 'B1B6T0',
+'Q9SQF7', 'Q41539', 'Q8W428', 'Q6T484', 'Q9XEN6', 'Q9AXR9', 'Q42839',
+ 'P11955', 'A1IJ67']
+
+
+
 def create_filtered_ec(ec_num: str, filtered_entries: list):
 
     original_fa = readFastaFile(f"/home/seb-porras/expat_bench/workflows/{ec_num}/files/{ec_num}.fasta")
@@ -87,7 +103,7 @@ def create_filtered_ec(ec_num: str, filtered_entries: list):
     writeFastaFile(f"/home/seb-porras/expat_bench/workflows/{ec_num}/files/{ec_num}_filt.fasta", filtered)
 
 
-create_filtered_ec('3_5_2_6', chosen_3_5_2_6)
+create_filtered_ec('3_2_1_14', fam_19_3_2_1_14)
 
 
 

@@ -164,8 +164,6 @@ def calc_jaccard_matrix(ec_num: str, threshold: float, filtered_counts, data_col
         
     return similar_groups
 
-
-
 def display_grouped_families(ec_num, similar_groups, index, data_col: str):
     """
     similar_groups: list containing groupings of tags that are similar to each other 
@@ -379,7 +377,6 @@ def generate_filtered_entries(ec_num: str, threshold: int, enzyme_prop: str ,ent
     if len(smart_matrix) > 0:
         print(f'Number of sequences after SMART filtering = {len(target_smart)}')
     
-
     compare_pfam = False 
     
     #display how many entries have Gene3D annot in the EC group 
