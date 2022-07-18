@@ -10,6 +10,7 @@ import async_timeout
 import time
 
 async def get_uniprot(session, url, params):
+   
     async with session.post(url, data=params) as resp:
         up_resp = await resp.text()
         # print ('got query')
@@ -20,7 +21,6 @@ def format_uniprot_params(ids):
     # print ('Formatting the parameters')
     updated_ids = " or ".join(ids)
     cols = ",".join(full_uniprot_cols)
-
     params = {"format": "tab", "query": updated_ids, "columns": "id," + cols}
     return params
 
@@ -47,7 +47,7 @@ async def main(split):
             task_count = 0
             # print (len(chunk))
             params = format_uniprot_params(chunk)
-            url = "https://www.uniprot.org/uniprot/"
+            url = "https://legacy.uniprot.org/uniprot/"
 
             task = asyncio.create_task(get_uniprot(session, url, params))
             task.up_ids = chunk

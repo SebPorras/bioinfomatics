@@ -42,15 +42,20 @@ from config.ec_nums import ec_nums
 ec_nums = [x.replace(".", "_") for x in ec_nums]
 
 # Just grab a sample of EC numbers
-ec_nums = ['3_5_2_6']
+# ec_nums = ['4_6_1_1','6_3_1_2', '2_7_4_1', '2_5_1_78', '3_1_1_3', '1_10_3_2', '2_4_1_16',
+# '5_2_1_8', '2_7_12_2', '1_11_1_15', '1_2_1_12', '1_9_3_1', '3_1_1_73', '5_3_4_1', '3_6_4_12', '2_4_1_17',
+# '3_1_3_48', '4_2_2_2', '4_3_1_24', '6_2_1_12', '2_7_1_1', 
 
-
+ec_nums = ['2_7_7_7', '3_2_1_55', '3_1_1_1', '2_7_7_27', 
+'1_5_1_20', '4_2_1_11', '3_2_1_18', '1_1_1_219', '2_3_2_27', '2_7_11_17', '3_1_3_2', '3_2_1_39', '2_7_11_13',
+'2_7_7_48', '3_1_3_8', '3_1_4_11', '3_2_1_51', '3_4_21_92','2_7_4_6']
 print (ec_nums)
 
 rule all:
         input:
-        	expand(WORKDIR + "/{ec_num}/files/{ec_num}.nwk", ec_num = ec_nums),
-        	expand(WORKDIR + "/{ec_num}/files/{ec_num}_annotations.txt", ec_num = ec_nums), expand(WORKDIR + "/{ec_num}/files/{ec_num}_filt.nwk", ec_num = ec_nums)
+        	expand(WORKDIR + "/{ec_num}/files/{ec_num}_filt.nwk", ec_num = ec_nums),
+        	expand(WORKDIR + "/{ec_num}/files/{ec_num}_annotations.txt", ec_num = ec_nums),
+        	expand(WORKDIR + "/{ec_num}/files/{ec_num}_filt.nwk", ec_num = ec_nums),
 
 # Get the BRENDA annotations for a given EC number
 rule get_brenda_annotations:
@@ -70,13 +75,13 @@ rule get_uniprot_annotations:
         "scripts/get_uniprot_annotations.py"
 
 # Write out the sequences to file
-rule create_fasta:
-	input:
-		WORKDIR + "/{ec_num}/csv/{ec_num}_uniprot.csv"
-	output:
-		WORKDIR + "/{ec_num}/files/{ec_num}.fasta"
-	script:
-	    "scripts/create_fasta.py"
+# rule create_fasta:
+# 	input:
+# 		WORKDIR + "/{ec_num}/csv/{ec_num}_uniprot.csv"
+# 	output:
+# 		WORKDIR + "/{ec_num}/files/{ec_num}.fasta"
+# 	script:
+# 	    "scripts/create_fasta.py"
 
 # Align sequences for a given EC number
 rule align_sequences:
