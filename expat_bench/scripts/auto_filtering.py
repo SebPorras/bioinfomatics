@@ -9,7 +9,7 @@ MIN_SEQS = int(snakemake.params.filter_parameters[1])
 ROW_NUM = int(snakemake.params.row_num)
 
 
-def display_col_tags(col_name: str):
+def display_col_tags(col_name: str) -> array:
 
     df = pd.read_csv(snakemake.input.csv)
 
@@ -18,7 +18,7 @@ def display_col_tags(col_name: str):
     return counts 
     
 #enter ec num and threshold to define a cutoff for similarity when grouping tags 
-def remove_outliers(data_col:str, entry_limit = 0):
+def remove_outliers(data_col:str, entry_limit = 0) -> dict:
     """
     Reads in all seqs from an ec_group, 
     
@@ -55,8 +55,7 @@ def remove_outliers(data_col:str, entry_limit = 0):
     return filtered_interpro 
     
     
-def grab_seqs_jaccard(similar_groups: list, col_name: str, index: int):
-    
+def grab_seqs_jaccard(similar_groups: list, col_name: str, index: int) -> list:
     """
     Grabs all sequences that have been put together in a group
     that is deemed to be similar to each other based on the calc_jaccard_matrix 
@@ -64,6 +63,11 @@ def grab_seqs_jaccard(similar_groups: list, col_name: str, index: int):
     
     similar_groups (list): uses the output from calc_jaccard_matrix to grab all entries 
     that have tags in that group 
+
+    col_name(str): this specifies the data column being compared. 
+    e.g. Protein_families 
+
+    index(int): specifies which row of Jaccard matrix to grab
     """
     
     df = pd.read_csv(snakemake.input.csv)
@@ -101,7 +105,20 @@ def compare_overlap(group_1, group_2):
     return percent_overalp
 
 
-def calc_jaccard_matrix_auto(threshold: float, filtered_counts, data_col):
+def calc_jaccard_matrix_auto(threshold: float, filtered_counts:dict, data_col:str) -> list:
+    """
+    Creates a list containing all InterPro tags and all other tags that they
+    are similar to.
+    
+    threshold (int): Cutoff between 0 and 1 for how similar SMART & InterPro tags must 
+    be to each other to be classed as similar
+    
+    filtered_counts(dict): 
+
+    data_col (str): The particular data column being compared for the sequences. 
+    e.g. Cross_reference_InterPro or Cross_reference_SMART 
+
+    """
   
     enzyme_cols = ['Entry', data_col]
 
@@ -127,10 +144,8 @@ def calc_jaccard_matrix_auto(threshold: float, filtered_counts, data_col):
 
             union = A.union(B)
             
-            #calculate Jaccard similarity 
+            #calculate Jaccard similarity and store
             similarity = len(intersection)/len(union)
-            
-            #updates matrix 
             distmat[i, j] = distmat[j, i] = similarity 
     
     #IP names stored here so that loop below can reference name with matrix indices 
@@ -182,20 +197,18 @@ def auto_generate_filtered_entries(threshold: int, entry_limit, row_num):
     #reference of sequences for other data base entries to be compared to 
     target_ip = grab_seqs_jaccard(ip_matrix, 'Cross_reference_InterPro', row_num)
 
+    #record what protein families are present after filtering 
     df = pd.read_csv(snakemake.input.csv)
-    
     inital_filter = df.loc[df['Entry'].isin(target_ip)]
-    
-    families = inital_filter['Protein_families'].dropna().unique()
-    
+    families = inital_filter['Protein_families'].dropna().unique()    
     print(f'Families present: {families}')
 
+    #grab any entry annotated with observed protein families 
     unfiltered = pd.read_csv(snakemake.input.csv)
-    
     chosen_seqs = unfiltered.loc[df['Protein_families'].isin(families)]
-
     chosen_seq_names = set(chosen_seqs['Entry'])
    
+    #update list of entries with any entries that were missed
     final_seqs.update(chosen_seq_names)
 
     return list(final_seqs)

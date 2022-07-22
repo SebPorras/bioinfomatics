@@ -73,15 +73,6 @@ rule get_uniprot_annotations:
     script:
         "scripts/get_uniprot_annotations.py"
 
-# Write out the sequences to file
-# rule create_fasta:
-# 	input:
-# 		WORKDIR + "/{ec_num}/csv/{ec_num}_uniprot.csv"
-# 	output:
-# 		WORKDIR + "/{ec_num}/files/{ec_num}.fasta"
-# 	script:
-# 	    "scripts/create_fasta.py"
-
 # Align sequences for a given EC number
 rule align_sequences:
 	input:
