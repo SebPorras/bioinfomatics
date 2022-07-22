@@ -3,6 +3,11 @@ from collections import defaultdict
 import numpy as np
 from sequence import * 
 
+#store parameters from the snakefile 
+THRESHOLD = float(snakemake.params.filter_parameters[0])
+MIN_SEQS = int(snakemake.params.filter_parameters[1])
+ROW_NUM = int(snakemake.params.row_num)
+
 
 def display_col_tags(col_name: str):
 
@@ -11,7 +16,6 @@ def display_col_tags(col_name: str):
     counts = df[col_name].dropna().unique()
     
     return counts 
-
     
 #enter ec num and threshold to define a cutoff for similarity when grouping tags 
 def remove_outliers(data_col:str, entry_limit = 0):
@@ -155,16 +159,8 @@ def calc_jaccard_matrix_auto(threshold: float, filtered_counts, data_col):
         
     return similar_groups
 
-def create_filtered_ec(filtered_entries: list):
 
-    original_fa = readFastaFile(snakemake.input.fasta)
-
-    filtered = [seq for seq in original_fa if seq.name in filtered_entries]
-
-    writeFastaFile(snakemake.output.filtered, filtered)
-
-    
-def auto_generate_filtered_entries(threshold: int, entry_limit = 0):
+def auto_generate_filtered_entries(threshold: int, entry_limit, row_num):
     """
     threshold (int): Cutoff between 0 and 1 for how similar SMART & InterPro tags must 
     be to each other to be classed as similar
@@ -181,58 +177,41 @@ def auto_generate_filtered_entries(threshold: int, entry_limit = 0):
     ip_matrix = calc_jaccard_matrix_auto(threshold, filtered_ip, 'Cross_reference_InterPro')  
 
     #list of seqs that will be written to the fasta file 
-    final_seqs = set(grab_seqs_jaccard(ip_matrix, 'Cross_reference_InterPro', 0))
+    final_seqs = set(grab_seqs_jaccard(ip_matrix, 'Cross_reference_InterPro', row_num))
 
-    #Once user is happy with selections, record which entries are included 
-    target_ip = grab_seqs_jaccard(ip_matrix, 'Cross_reference_InterPro', 0)
+    #reference of sequences for other data base entries to be compared to 
+    target_ip = grab_seqs_jaccard(ip_matrix, 'Cross_reference_InterPro', row_num)
+
+    df = pd.read_csv(snakemake.input.csv)
     
-    #remove groups below the minimum number of entries within the EC group 
-    filtered_smart = remove_outliers('Cross_reference_SMART', entry_limit)
-
-    #create jaccard matrix from filtered list 
-    smart_matrix = calc_jaccard_matrix_auto(threshold, filtered_smart, 'Cross_reference_SMART')
-
-    for i in range(len(smart_matrix)):
-       
-        target_smart = grab_seqs_jaccard(smart_matrix, 'Cross_reference_SMART', i)
-      
-        if compare_overlap(target_ip, target_smart) > 0.8:
-            
-            final_seqs.update(target_smart)
-
-    tags = display_col_tags('Cross_reference_Gene3D')
-
-    for i in tags:
-
-        target_g3d = grab_seqs("Cross_reference_Gene3D", i)
-        print(compare_overlap(target_ip, target_g3d))
-
-        if compare_overlap(target_ip, target_g3d) > 0.8:
-            
-            final_seqs.update(target_g3d)
-
-    tags = display_col_tags('Cross_reference_Pfam')
-
-    for i in tags:
-       
-        target_pfam = grab_seqs("Cross_reference_Pfam", i)
-
-        print(compare_overlap(target_ip, target_pfam))
-        
-        if compare_overlap(target_ip, target_pfam) > 0.8:
-            final_seqs.update(target_pfam)
+    inital_filter = df.loc[df['Entry'].isin(target_ip)]
     
-    tags = display_col_tags('Cross_reference_OrthoDB')
-
-    for i in tags:
-
-        target_ortho = grab_seqs("Cross_reference_OrthoDB", i)
+    families = inital_filter['Protein_families'].dropna().unique()
     
-        if compare_overlap(target_ip, target_ortho) > 0.8:
-            final_seqs.update(target_ortho)
+    print(f'Families present: {families}')
+
+    unfiltered = pd.read_csv(snakemake.input.csv)
     
+    chosen_seqs = unfiltered.loc[df['Protein_families'].isin(families)]
+
+    chosen_seq_names = set(chosen_seqs['Entry'])
+   
+    final_seqs.update(chosen_seq_names)
+
     return list(final_seqs)
 
-test = auto_generate_filtered_entries(0.5, 1)
+
+def create_filtered_ec(filtered_entries: list):
+
+    original_fa = readFastaFile(snakemake.input.fasta)
+
+    filtered = [seq for seq in original_fa if seq.name in filtered_entries]
+
+    writeFastaFile(snakemake.output.filtered, filtered)
+
+
+print(snakemake.params.filter_parameters)
+
+test = auto_generate_filtered_entries(THRESHOLD, MIN_SEQS, ROW_NUM)
 create_filtered_ec(test)    
 

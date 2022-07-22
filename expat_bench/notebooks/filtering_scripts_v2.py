@@ -10,9 +10,6 @@ def remove_outliers(ec_num: str, data_col:str, entry_limit) -> dict:
     Reads in all seqs from an ec_group, 
     
     ec_num (str): enzyme classification number to access files 
-
-    rm_outliers: condition that will remove any groups 
-    that only have one entry in them 
     
     data_col (str): The particular data column being compared for the sequences. 
     e.g. Cross_reference_InterPro 

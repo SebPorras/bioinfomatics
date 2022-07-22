@@ -8,7 +8,7 @@ Gene_ontology_molecular_function
 Gene_ontology_cellular_component	
 Gene_ontology_IDs
 Protein_names
-Protein_families
+Protein_families 
 Cross_reference_eggNOG
 Cross_reference_Gene3D
 Cross_reference_HOGENOM

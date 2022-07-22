@@ -10,6 +10,15 @@ update_ec_nums : False
 #List of columns to create an annotation file for - if this file is missing or empty it will include all columns in the annotation file
 annotation_cols : "config/annotation_cols.txt"
 
+#Auto Filtering parameters 
+# threshold = 0.5, how similar can two IP/SMART tags be
+# min number of entries = 1 
+#the minimum number of entries for a particular tag needed to be included 
+filter_parameters: ["0.15", "1"]
+
+#which row in InterPro matrix to match entries to 
+row_num: "0"
+
 # # Each FASTA file needs an according .subset file in this folder (test1.fasta -> test1.subset)
 # subdir: "workflows/workflow/subset_rules"
 
@@ -42,11 +51,3 @@ annotation_cols : "config/annotation_cols.txt"
 # key_annotation_cols : ['BRENDA_KM', 'Cross_reference_InterPro', 'Cross_reference_Pfam', 'Cross_reference_PROSITE', 'ChEBI_Cofactor',
 # 'Gene_ontology_molecular_function', 'MOTIF_SPVEY',  'MOTIF_RFDDR']
 
-#Filtering parameters 
-# threshold = 0.5, how similar can two IP/SMART tags be
-# min number of entries = 1 
-#the minimum number of entries for a particular tag needed to be included 
-filter_parameters: ["0.2", "0"]
-
-#which row in InterPro matrix to match entries to 
-row_num: "0"
